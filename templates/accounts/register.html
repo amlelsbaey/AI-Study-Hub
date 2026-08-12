@@ -1,0 +1,147 @@
+{% extends 'auth_base.html' %}
+{% load socialaccount %}
+
+{% block title %}
+Create Account | AI Study Hub
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+        <a href="{% url 'home' %}">
+
+            <div class="auth-logo">
+                ✦
+            </div>
+
+            <div>
+                <strong>AI Study</strong>
+                <span>Hub</span>
+            </div>
+
+        </a>
+    </div>
+
+
+    <!-- Register Card -->
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <h1>
+                Create your account
+            </h1>
+
+            <p>
+                Start organizing your study life today.
+            </p>
+
+        </div>
+
+
+        <!-- Google -->
+        <a
+            href="{% provider_login_url 'google' %}"
+            class="google-btn"
+        >
+
+            <span class="google-icon">
+                G
+            </span>
+
+            <span>
+                Continue with Google
+            </span>
+
+        </a>
+
+
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>OR</span>
+        </div>
+
+
+        <!-- Normal Registration -->
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+
+                <div class="form-error">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label>
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+
+                        <small>
+                            {{ field.help_text }}
+                        </small>
+
+                    {% endif %}
+
+
+                    {% if field.errors %}
+
+                        <div class="field-error">
+                            {{ field.errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+
+            <button
+                type="submit"
+                class="auth-btn"
+            >
+                Create Account
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <!-- Login -->
+        <div class="auth-footer">
+
+            <span>
+                Already have an account?
+            </span>
+
+            <a href="{% url 'login' %}">
+                Log in
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <p class="auth-copy">
+        © 2026 AI Study Hub · Study smarter. Learn better.
+    </p>
+
+</div>
+
+{% endblock %}

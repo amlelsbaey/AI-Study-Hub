@@ -1,0 +1,149 @@
+{% extends 'auth_base.html' %}
+{% load socialaccount %}
+
+{% block title %}
+Login | AI Study Hub
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+        <a href="{% url 'home' %}">
+
+            <div class="auth-logo">
+                ✦
+            </div>
+
+            <div class="auth-brand-text">
+                <strong>AI Study</strong>
+                <span>Hub</span>
+            </div>
+
+        </a>
+    </div>
+
+
+    <!-- Login Card -->
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <h1>
+                Welcome back
+            </h1>
+
+            <p>
+                Log in to continue your learning journey.
+            </p>
+
+        </div>
+
+
+        <!-- Google Login -->
+        <a
+            href="{% provider_login_url 'google' %}"
+            class="google-btn"
+        >
+
+            <span class="google-icon">
+                G
+            </span>
+
+            <span>
+                Continue with Google
+            </span>
+
+        </a>
+
+
+        <!-- Divider -->
+        <div class="auth-divider">
+
+            <span>OR</span>
+
+        </div>
+
+
+        <!-- Normal Login -->
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+
+                <div class="form-error">
+                    {{ form.non_field_errors }}
+                </div>
+
+            {% endif %}
+
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label>
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.errors %}
+
+                        <div class="field-error">
+                            {{ field.errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+
+            <div class="forgot-password">
+
+                <a href="#">
+                    Forgot password?
+                </a>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="auth-btn"
+            >
+                Login
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <!-- Register -->
+        <div class="auth-footer">
+
+            <span>
+                Don't have an account?
+            </span>
+
+            <a href="{% url 'register' %}">
+                Create one
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <p class="auth-copy">
+        © 2026 AI Study Hub · Study smarter. Learn better.
+    </p>
+
+</div>
+
+{% endblock %}
