@@ -1,31 +1,113 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit Profile{% endblock %}
+{% block title %}Edit Profile | AI Study Hub{% endblock %}
 
 {% block content %}
 
-<h1>Edit Profile</h1>
+<div class="account-page">
 
-<form method="post" enctype="multipart/form-data">
+    <div class="page-header">
 
-    {% csrf_token %}
+        <div>
+            <p class="page-eyebrow">ACCOUNT</p>
 
-    <h3>Account Information</h3>
+            <h1>Edit Profile</h1>
 
-    {{ user_form.as_p }}
+            <p class="page-description">
+                Update your personal information and profile details.
+            </p>
+        </div>
 
-    <h3>Profile Information</h3>
+    </div>
 
-    {{ profile_form.as_p }}
 
-    <button type="submit">
-        Save Changes
-    </button>
+    <div class="form-card">
 
-</form>
+        <form method="post" enctype="multipart/form-data">
 
-<a href="{% url 'profile' %}">
-    Cancel
-</a>
+            {% csrf_token %}
+
+
+            <!-- Account Information -->
+            <div class="form-section">
+
+                <div class="form-section-header">
+
+                    <div class="section-icon">
+                        👤
+                    </div>
+
+                    <div>
+                        <h2>Account Information</h2>
+
+                        <p>
+                            Basic information associated with your account.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-form-fields">
+                    {{ user_form.as_p }}
+                </div>
+
+            </div>
+
+
+            <div class="form-divider"></div>
+
+
+            <!-- Profile Information -->
+            <div class="form-section">
+
+                <div class="form-section-header">
+
+                    <div class="section-icon">
+                        ✦
+                    </div>
+
+                    <div>
+                        <h2>Profile Information</h2>
+
+                        <p>
+                            Tell us a little more about yourself.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-form-fields">
+                    {{ profile_form.as_p }}
+                </div>
+
+            </div>
+
+
+            <!-- Actions -->
+            <div class="form-actions">
+
+                <a
+                    href="{% url 'profile' %}"
+                    class="secondary-btn"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 
 {% endblock %}

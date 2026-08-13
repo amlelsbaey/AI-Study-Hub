@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings | AI Study Hub{% endblock %}
+
+{% block content %}
+
+<div class="account-page">
+
+    <div class="page-header">
+        <div>
+            <p class="page-eyebrow">ACCOUNT</p>
+            <h1>Settings</h1>
+            <p class="page-description">
+                Manage your account, preferences, and security.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="settings-layout">
+
+        <!-- Settings Navigation -->
+        <aside class="settings-nav">
+
+            <a href="#account" class="settings-nav-item active">
+                <span>👤</span>
+                <div>
+                    <strong>Account</strong>
+                    <small>Personal information</small>
+                </div>
+            </a>
+
+            <a href="#appearance" class="settings-nav-item">
+                <span>◐</span>
+                <div>
+                    <strong>Appearance</strong>
+                    <small>Theme preferences</small>
+                </div>
+            </a>
+
+            <a href="#notifications" class="settings-nav-item">
+                <span>🔔</span>
+                <div>
+                    <strong>Notifications</strong>
+                    <small>Manage notifications</small>
+                </div>
+            </a>
+
+            <a href="#security" class="settings-nav-item">
+                <span>🔒</span>
+                <div>
+                    <strong>Security</strong>
+                    <small>Password & security</small>
+                </div>
+            </a>
+
+            <a href="#connections" class="settings-nav-item">
+                <span>🔗</span>
+                <div>
+                    <strong>Connected Accounts</strong>
+                    <small>Google and other accounts</small>
+                </div>
+            </a>
+
+        </aside>
+
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+
+
+            <!-- Account -->
+            <section class="settings-section" id="account">
+
+                <div class="settings-section-header">
+                    <div>
+                        <p class="page-eyebrow">ACCOUNT</p>
+                        <h2>Account Information</h2>
+                        <p>
+                            Manage your basic account information.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="settings-info-row">
+                    <div>
+                        <small>Username</small>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+
+                    <a href="{% url 'edit_profile' %}" class="secondary-btn">
+                        Edit
+                    </a>
+                </div>
+
+                <div class="settings-info-row">
+                    <div>
+                        <small>Email</small>
+                        <strong>{{ user.email }}</strong>
+                    </div>
+                </div>
+
+            </section>
+
+
+            <!-- Appearance -->
+            <section class="settings-section" id="appearance">
+
+                <div class="settings-section-header">
+                    <div>
+                        <p class="page-eyebrow">PREFERENCES</p>
+                        <h2>Appearance</h2>
+                        <p>
+                            Customize how AI Study Hub looks.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="setting-option">
+                    <div>
+                        <strong>Dark Mode</strong>
+                        <p>Use dark theme across AI Study Hub.</p>
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span></span>
+                    </label>
+                </div>
+
+            </section>
+
+
+            <!-- Notifications -->
+            <section class="settings-section" id="notifications">
+
+                <div class="settings-section-header">
+                    <div>
+                        <p class="page-eyebrow">PREFERENCES</p>
+                        <h2>Notifications</h2>
+                        <p>
+                            Choose how you want to receive notifications.
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class="setting-option">
+
+                    <div>
+                        <strong>Study Reminders</strong>
+
+                        <p>
+                            Get reminders about your upcoming study tasks.
+                        </p>
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span></span>
+                    </label>
+
+                </div>
+
+
+                <div class="setting-option">
+
+                    <div>
+                        <strong>Task Notifications</strong>
+
+                        <p>
+                            Receive notifications about upcoming deadlines.
+                        </p>
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span></span>
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <!-- Security -->
+            <section class="settings-section" id="security">
+
+                <div class="settings-section-header">
+
+                    <div>
+                        <p class="page-eyebrow">SECURITY</p>
+                        <h2>Security</h2>
+                        <p>
+                            Keep your account secure.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="settings-info-row">
+
+                    <div>
+                        <strong>Password</strong>
+
+                        <small>
+                            Change your account password.
+                        </small>
+                    </div>
+
+                    <a
+                        href="{% url 'change_password' %}"
+                        class="secondary-btn"
+                    >
+                        Change Password
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- Connected Accounts -->
+            <section class="settings-section" id="connections">
+
+                <div class="settings-section-header">
+
+                    <div>
+                        <p class="page-eyebrow">SOCIAL LOGIN</p>
+                        <h2>Connected Accounts</h2>
+                        <p>
+                            Manage accounts connected to AI Study Hub.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="connected-account">
+
+                    <div class="google-account-icon">
+                        G
+                    </div>
+
+                    <div class="connected-account-info">
+
+                        <strong>Google</strong>
+
+                        <small>
+                            Sign in with your Google account.
+                        </small>
+
+                    </div>
+
+                    <span class="connected-badge">
+                        Available
+                    </span>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

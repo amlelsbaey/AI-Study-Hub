@@ -40,15 +40,40 @@ if (overlay) {
     });
 }
 
+// =========================
+// DARK MODE
+// =========================
 
-// Dark mode
-const themeToggle = document.getElementById("themeToggle");
+const darkModeToggle = document.getElementById("darkModeToggle");
 
-if (themeToggle) {
+// Check saved theme
+const savedTheme = localStorage.getItem("theme");
 
-    themeToggle.addEventListener("click", () => {
+if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
 
-        document.body.classList.toggle("dark-mode");
+    if (darkModeToggle) {
+        darkModeToggle.checked = true;
+    }
+}
+
+
+// Toggle from Settings
+if (darkModeToggle) {
+
+    darkModeToggle.addEventListener("change", function () {
+
+        if (this.checked) {
+
+            document.body.classList.add("dark-mode");
+            localStorage.setItem("theme", "dark");
+
+        } else {
+
+            document.body.classList.remove("dark-mode");
+            localStorage.setItem("theme", "light");
+
+        }
 
     });
 

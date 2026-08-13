@@ -9,6 +9,7 @@
     <title>{% block title %}AI Study Hub{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
 </head>
 
 <body>
@@ -127,7 +128,7 @@
                     </a>
 
 
-                    <a href="{% url 'change_password' %}" class="nav-item">
+                    <a href="{% url 'settings' %}" class="nav-item">
 
                         <span class="nav-icon">
                             ⚙
