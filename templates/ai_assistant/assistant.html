@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Assistant | AI Study Hub{% endblock %}
+
+{% block content %}
+
+<div class="ai-page">
+
+    <!-- Header -->
+    <div class="ai-page-header">
+
+        <div>
+            <p class="page-eyebrow">AI TOOLS</p>
+
+            <h1>AI Assistant</h1>
+
+            <p class="ai-page-description">
+                Your personal study assistant. Ask questions, understand
+                concepts, and study smarter.
+            </p>
+        </div>
+
+        <a href="{% url 'ai_assistant:new_conversation' %}"
+           class="ai-new-chat-btn">
+            <span>＋</span>
+            New Chat
+        </a>
+
+    </div>
+
+
+    <!-- Assistant -->
+    <div class="ai-assistant-card">
+
+        <!-- Conversations Sidebar -->
+        <aside class="ai-conversations">
+
+            <div class="ai-conversations-header">
+
+                <div>
+                    <h3>Conversations</h3>
+                    <span>{{ conversations|length }} chats</span>
+                </div>
+
+                <a href="{% url 'ai_assistant:new_conversation' %}"
+                   class="ai-add-chat"
+                   title="New conversation">
+                    +
+                </a>
+
+            </div>
+
+
+            <div class="ai-conversation-list">
+
+                {% for item in conversations %}
+
+                    <div class="ai-conversation-item-wrapper">
+
+                        <a href="{% url 'ai_assistant:conversation' item.id %}"
+                           class="ai-conversation-item
+                           {% if conversation.id == item.id %}active{% endif %}">
+
+                            <div class="conversation-icon">
+                                ✦
+                            </div>
+
+                            <div class="conversation-info">
+
+                                <strong>
+                                    {{ item.title }}
+                                </strong>
+
+                                <small>
+                                    {{ item.updated_at|date:"M d, Y" }}
+                                </small>
+
+                            </div>
+
+                        </a>
+
+
+                        <form method="POST"
+                              action="{% url 'ai_assistant:delete_conversation' item.id %}"
+                              class="delete-conversation-form">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="delete-conversation-btn"
+                                    title="Delete conversation"
+                                    onclick="return confirm('Are you sure you want to delete this conversation?');">
+
+                                🗑
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="ai-no-conversations">
+
+                        <span>✦</span>
+
+                        <p>No conversations yet.</p>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </aside>
+
+
+        <!-- Chat Area -->
+        <section class="ai-chat">
+
+            {% if conversation %}
+
+                <!-- Chat Header -->
+                <div class="ai-chat-header">
+
+                    <div class="ai-chat-title">
+
+                        <div class="ai-chat-avatar">
+                            ✦
+                        </div>
+
+                        <div>
+
+                            <h2>
+                                {{ conversation.title }}
+                            </h2>
+
+                            <span>
+                                AI Study Assistant
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Messages -->
+                <div class="ai-messages" id="aiMessages">
+
+                    {% for message in messages %}
+
+                        {% if message.role == "user" %}
+
+                            <div class="ai-message user-message">
+
+                                <div class="message-content">
+                                    {{ message.content|linebreaksbr }}
+                                </div>
+
+                                <div class="message-avatar user-avatar">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="ai-message assistant-message">
+
+                                <div class="message-avatar assistant-avatar">
+                                    ✦
+                                </div>
+
+                                <div class="message-wrapper">
+
+                                    <div class="message-content">
+                                        {{ message.content|linebreaksbr }}
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        class="copy-message-btn"
+                                        title="Copy response">
+                                        Copy
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    {% empty %}
+
+                        <div class="ai-empty-state">
+
+                            <div class="ai-empty-icon">
+                                ✦
+                            </div>
+
+                            <h2>
+                                How can I help you study?
+                            </h2>
+
+                            <p>
+                                Ask me about a topic, explain a concept,
+                                or help you create a study plan.
+                            </p>
+
+                            <div class="ai-suggestions">
+
+                                <button type="button">
+                                    Explain a concept
+                                </button>
+
+                                <button type="button">
+                                    Summarize a topic
+                                </button>
+
+                                <button type="button">
+                                    Generate quiz questions
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- Input -->
+                <div class="ai-input-area">
+
+                    <form method="POST"
+                          action="{% url 'ai_assistant:send_message' conversation.id %}"
+                          class="ai-message-form">
+
+                        {% csrf_token %}
+
+                        <textarea
+                            name="content"
+                            id="aiMessageInput"
+                            rows="1"
+                            placeholder="Ask your AI study assistant..."
+                            required
+                        ></textarea>
+
+                        <button type="submit"
+                                class="ai-send-btn">
+
+                            <span>↑</span>
+
+                        </button>
+
+                    </form>
+
+                    <p class="ai-input-hint">
+                        AI can make mistakes. Always verify important information.
+                    </p>
+
+                </div>
+
+
+            {% else %}
+
+                <!-- No Conversation -->
+                <div class="ai-welcome">
+
+                    <div class="ai-welcome-icon">
+                        ✦
+                    </div>
+
+                    <h2>
+                        Your AI Study Assistant
+                    </h2>
+
+                    <p>
+                        Start a conversation and let AI help you
+                        understand, organize, and improve your studying.
+                    </p>
+
+                    <a href="{% url 'ai_assistant:new_conversation' %}"
+                       class="ai-start-btn">
+
+                        Start New Chat →
+
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script src="{% static 'js/ai_assistant.js' %}"></script>
+
+{% endblock %}
