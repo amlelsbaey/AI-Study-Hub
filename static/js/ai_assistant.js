@@ -210,9 +210,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Prepare Request
                 // =========================
 
-                const formData =
-                    new FormData(messageForm);
+                const formData =new FormData();
+                formData.append("content", content);
 
+                const csfrToken =messageForm.querySelector(
+                    'input[name="csrfmiddlewaretoken"]'
+                );
+                if (csfrToken) {
+                    formData.append(
+                        "csrfmiddlewaretoken",
+                        csfrToken.value
+                    );
+                }
+                console.log("Input Content:", content);
+                console.log("Form data content:", formData.get("content"));
+                
 
                 // =========================
                 // AI Loading Indicator

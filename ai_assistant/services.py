@@ -51,8 +51,5 @@ def get_ai_response(conversation):
 
         except Exception as e:
 
-            if "503" in str(e) and attempt < 2:
-                time.sleep(2)
-
-            else:
-                raise
+            print("GEMINI ERROR:", repr(e))
+            raise
