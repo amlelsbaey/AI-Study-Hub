@@ -29,8 +29,7 @@ if (overlay) {
         sidebar.classList.remove("open");
         overlay.classList.remove("active");
     });
-});
-
+};
 
 // =========================
 // DARK MODE
@@ -38,34 +37,39 @@ if (overlay) {
 
 const darkModeToggle = document.getElementById("darkModeToggle");
 
-// Check saved theme
-const savedTheme = localStorage.getItem("theme");
+function applyTheme(theme) {
+    if (theme === "dark") {
+        document.body.classList.add("dark-mode");
 
-if (savedTheme === "dark") {
-    document.body.classList.add("dark-mode");
+        if (darkModeToggle) {
+            darkModeToggle.checked = true;
+        }
+    } else {
+        document.body.classList.remove("dark-mode");
 
-    if (darkModeToggle) {
-        darkModeToggle.checked = true;
+        if (darkModeToggle) {
+            darkModeToggle.checked = false;
+        }
     }
 }
 
 
-// Toggle dark mode
+// Apply saved theme immediately
+const savedTheme = localStorage.getItem("theme") || "light";
+
+applyTheme(savedTheme);
+
+
+// Toggle dark mode from Settings
 if (darkModeToggle) {
 
     darkModeToggle.addEventListener("change", function () {
 
-        if (this.checked) {
+        const newTheme = this.checked ? "dark" : "light";
 
-            document.body.classList.add("dark-mode");
-            localStorage.setItem("theme", "dark");
+        localStorage.setItem("theme", newTheme);
 
-        } else {
-
-            document.body.classList.remove("dark-mode");
-            localStorage.setItem("theme", "light");
-
-        }
+        applyTheme(newTheme);
 
     });
 
