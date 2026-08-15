@@ -30,17 +30,50 @@ urlpatterns = [
     ),
 
     path(
-    'profile/edit/',
-    views.edit_profile,
-    name='edit_profile'
+        'profile/edit/',
+        views.edit_profile,
+        name='edit_profile'
     ),
 
     path(
-    'password/change/',
-    auth_views.PasswordChangeView.as_view(
-        template_name='accounts/change_password.html',
-        success_url='/accounts/profile/'
+        'password/change/',
+        auth_views.PasswordChangeView.as_view(
+            template_name='accounts/change_password.html',
+            success_url='/accounts/profile/'
+        ),
+        name='change_password'
     ),
-    name='change_password'
+
+    # --- Password Reset URLs ---
+    path(
+        'password_reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='accounts/password_reset.html'
+        ),
+        name='password_reset'
+    ),
+
+    path(
+        'password_reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='accounts/password_reset_done.html'
+        ),
+        name='password_reset_done'
+    ),
+
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='accounts/password_reset_confirm.html'
+        ),
+        name='password_reset_confirm'
+    ),
+
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='accounts/password_reset_complete.html'
+        ),
+        name='password_reset_complete'
     ),
 ]

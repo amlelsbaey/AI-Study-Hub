@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - AI Study Hub{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <span class="workspace-label">WORKSPACE</span>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Welcome back! Here is an overview of your progress.</p>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon icon-purple">✓</div>
+        <div>
+            <span class="stat-label">Pending Tasks</span>
+            <h3 class="stat-value">{{ tasks_count }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon icon-violet">▤</div>
+        <div>
+            <span class="stat-label">Total Notes</span>
+            <h3 class="stat-value">{{ notes_count }}</h3>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon icon-green">↗</div>
+        <div>
+            <span class="stat-label">Total Resources</span>
+            <h3 class="stat-value">{{ resources_count }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Unified Feed -->
+<div class="recent-tasks-card">
+    <div class="section-header">
+        <h3 class="section-title">Recent Activity</h3>
+    </div>
+
+    {% if recent_activities %}
+        <div class="recent-tasks-list">
+            {% for item in recent_activities %}
+            <a href="{% if item.activity_type == 'Task' %}{% url 'study:tasks' %}{% elif item.activity_type == 'Note' %}{% url 'study:notes' %}{% else %}{% url 'resources:resources_list' %}{% endif %}" style="text-decoration: none; color: inherit;">
+                <div class="recent-task-item">
+                    <div class="task-title-area">
+                        {% if item.activity_type == 'Task' %}
+                            <span class="activity-badge badge-task">Task</span>
+                        {% elif item.activity_type == 'Note' %}
+                            <span class="activity-badge badge-note">Note</span>
+                        {% elif item.activity_type == 'Resource' %}
+                            <span class="activity-badge badge-resource">Resource</span>
+                        {% else %}
+                            <span class="activity-badge badge-session">Session</span>
+                        {% endif %}
+
+                        <div>
+                            <span class="task-title-text">{{ item.title }}</span>
+                            <div class="activity-meta">
+                                {% if item.activity_type == 'Task' %}
+                                    Course: {{ item.course.name }}
+                                {% elif item.activity_type == 'Note' %}
+                                    Category: {{ item.category.name }}
+                                {% elif item.activity_type == 'Resource' %}
+                                    Type: {{ item.resource_type.name }}
+                                {% elif item.activity_type == 'Session' %}
+                                    Duration: {{ item.duration }} Mins
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="activity-timestamp">{{ item.timestamp|date:"M d, H:i" }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-tasks">No recent activity found.</p>
+    {% endif %}
+</div>
+{% endblock %}

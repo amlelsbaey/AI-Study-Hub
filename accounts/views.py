@@ -15,7 +15,8 @@ def register(request):
 
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            # التعديل هنا: أضفنا الـ backend لمنع التضارب مع allauth
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('profile')
 
     else:

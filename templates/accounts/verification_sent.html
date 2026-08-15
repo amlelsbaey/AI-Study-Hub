@@ -1,0 +1,33 @@
+{% extends 'auth_base.html' %}
+
+{% block title %}Check Your Email | AI Study Hub{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-brand">
+        <a href="{% url 'home' %}">
+            <div class="auth-logo">✦</div>
+            <div><strong>AI Study</strong><span>Hub</span></div>
+        </a>
+    </div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Verify your email</h1>
+            <p>We sent a verification link to your email address. Click the link to activate your account, then log in.</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form-success" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-footer" style="margin-top: 10px;">
+            <a href="{% url 'login' %}">Back to login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -97,7 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'AI_Study_Hub',
         'USER': 'postgres',
-        'PASSWORD': 'aml2252005',
+        'PASSWORD': 'nada1712',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -149,8 +149,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication Redirects
+LOGIN_REDIRECT_URL = '/study/dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
