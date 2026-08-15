@@ -1,0 +1,138 @@
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Continue with Google | AI Study Hub</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f8f9fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .google-container {
+            width: 100%;
+            max-width: 430px;
+            padding: 20px;
+        }
+
+        .google-card {
+            background: white;
+            padding: 45px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .logo {
+            width: 55px;
+            height: 55px;
+            margin: 0 auto 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+            background:  #4285F4;
+            color: white;
+
+            font-size: 28px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 28px;
+            color: #111827;
+        }
+
+        p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .google-btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+
+            background:  #4285F4;
+            color: white;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.92;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="google-container">
+
+    <div class="google-card">
+
+        <div class="logo">
+            ✦
+        </div>
+
+        <h1>Continue with Google</h1>
+
+        <p>
+            You are about to sign in to
+            <strong>AI Study Hub</strong>
+            using your Google account.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <button type="submit" class="google-btn">
+                Continue with Google
+            </button>
+        </form>
+
+        <a href="{% url 'login' %}" class="back-link">
+            ← Back to login
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

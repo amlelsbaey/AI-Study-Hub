@@ -1,39 +1,187 @@
 {% extends 'base.html' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}My Profile | AI Study Hub{% endblock %}
 
 {% block content %}
 
-<h1>My Profile</h1>
+<div class="account-page">
 
-{% if profile.profile_image %}
-    <img
-        src="{{ profile.profile_image.url }}"
-        alt="Profile Image"
-        width="150"
-    >
-{% endif %}
+    <!-- Page Header -->
+    <div class="page-header">
 
-<h2>
-    {{ user.first_name }} {{ user.last_name }}
-</h2>
+        <div>
+            <p class="page-eyebrow">ACCOUNT</p>
 
-<p>Username: {{ user.username }}</p>
-<p>Email: {{ user.email }}</p>
+            <h1>My Profile</h1>
 
-{% if profile.bio %}
-    <p>Bio: {{ profile.bio }}</p>
-{% endif %}
+            <p class="page-description">
+                Manage your personal information and account details.
+            </p>
+        </div>
 
-{% if profile.phone %}
-    <p>Phone: {{ profile.phone }}</p>
-{% endif %}
+        <a href="{% url 'edit_profile' %}" class="primary-btn">
+            ✎ Edit Profile
+        </a>
 
-<a href="{% url 'edit_profile' %}">
-    Edit Profile
-</a>
+    </div>
 
-<a href="{% url 'change_password' %}">
-    Change Password
-</a>
+
+    <!-- Profile Layout -->
+    <div class="profile-layout">
+
+        <!-- Main Profile Card -->
+        <div class="profile-card">
+
+            <!-- Cover -->
+            <div class="profile-cover"></div>
+
+
+            <!-- Profile Main -->
+            <div class="profile-main">
+
+                <div class="profile-avatar-large">
+
+                    {% if profile.profile_image %}
+
+                        <img
+                            src="{{ profile.profile_image.url }}"
+                            alt="Profile Image"
+                        >
+
+                    {% else %}
+
+                        {{ user.first_name|first|default:user.username|first|upper }}
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="profile-heading">
+
+                    <h2>
+                        {{ user.first_name }} {{ user.last_name }}
+                    </h2>
+
+                    <p>
+                        @{{ user.username }}
+                    </p>
+
+                    <span class="account-badge">
+                        Student
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Bio -->
+            {% if profile.bio %}
+
+                <div class="profile-bio">
+
+                    <h3>About Me</h3>
+
+                    <p>
+                        {{ profile.bio }}
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Details -->
+            <div class="profile-details">
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+                        ✉
+                    </div>
+
+                    <div>
+
+                        <small>Email</small>
+
+                        <strong>
+                            {{ user.email }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+                        ☎
+                    </div>
+
+                    <div>
+
+                        <small>Phone</small>
+
+                        <strong>
+                            {% if profile.phone %}
+                                {{ profile.phone }}
+                            {% else %}
+                                Not provided
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+                        👤
+                    </div>
+
+                    <div>
+
+                        <small>Username</small>
+
+                        <strong>
+                            {{ user.username }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <div class="detail-icon">
+                        📅
+                    </div>
+
+                    <div>
+
+                        <small>Member since</small>
+
+                        <strong>
+                            {{ user.date_joined|date:"M Y" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+</div>
+
 {% endblock %}

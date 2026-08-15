@@ -13,7 +13,7 @@ urlpatterns = [
 
     path(
         'logout/',
-        auth_views.LogoutView.as_view(),
+        auth_views.LogoutView.as_view(next_page='/'),
         name='logout'
     ),
 
@@ -76,4 +76,6 @@ urlpatterns = [
         ),
         name='password_reset_complete'
     ),
+
+    path('settings/', views.settings_view, name='settings'),
 ]

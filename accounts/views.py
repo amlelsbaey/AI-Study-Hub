@@ -1,13 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-
 from .forms import (
     RegisterForm,
     UserUpdateForm,
     ProfileUpdateForm
 )
-
 
 def register(request):
     if request.method == 'POST':
@@ -78,3 +76,7 @@ def edit_profile(request):
         'accounts/edit_profile.html',
         context
     )
+
+@login_required
+def settings_view(request):
+    return render(request, 'accounts/settings.html')
