@@ -4,11 +4,7 @@ from django.contrib.auth.models import User
 
 
 class Course(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='courses'
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='courses')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     color = models.CharField(max_length=20, blank=True)
@@ -31,31 +27,15 @@ class Task(models.Model):
         ('completed', 'Completed'),
     ]
 
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='tasks'
-    )
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='tasks')
 
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name='tasks'
-    )
+    course = models.ForeignKey(Course,on_delete=models.CASCADE,related_name='tasks')
 
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     due_date = models.DateTimeField()
-    priority = models.CharField(
-        max_length=10,
-        choices=PRIORITY_CHOICES,
-        default='medium'
-    )
-    status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
+    priority = models.CharField(max_length=10,choices=PRIORITY_CHOICES,default='medium')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(blank=True, null=True)
 
@@ -71,23 +51,11 @@ class NoteCategory(models.Model):
 
 
 class Note(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='notes'
-    )
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='notes')
 
-    category = models.ForeignKey(
-        NoteCategory,
-        on_delete=models.CASCADE,
-        related_name='notes'
-    )
+    category = models.ForeignKey(NoteCategory,on_delete=models.CASCADE,related_name='notes')
 
-    courses = models.ManyToManyField(
-        Course,
-        related_name='notes',
-        blank=True
-    )
+    courses = models.ManyToManyField(Course,related_name='notes',blank=True)
 
     title = models.CharField(max_length=200)
     content = models.TextField()
@@ -98,11 +66,7 @@ class Note(models.Model):
         return self.title
 
 class StudySession(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='study_sessions'
-    )
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='study_sessions')
 
     title = models.CharField(max_length=200)
     start_time = models.DateTimeField()

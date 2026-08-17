@@ -20,17 +20,15 @@
 
 <div class="app">
 
-    <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- ================= SIDEBAR ================= -->
+   
     <aside class="sidebar" id="sidebar">
 
-        <!-- Logo -->
         <div class="brand">
 
             <div class="brand-icon">
-                ✦
+                <img src="{% static '/images/logos.png' %}" alt="logo" width="70" height="70">
             </div>
 
             <div class="brand-text">
@@ -50,7 +48,7 @@
         </div>
 
 
-        <!-- Navigation -->
+        
         <nav class="sidebar-nav">
 
             <div class="nav-section">
@@ -182,17 +180,14 @@
     </aside>
 
 
-    <!-- ================= MAIN ================= -->
 
     <div class="main-wrapper">
 
 
-        <!-- Topbar -->
         <header class="topbar">
 
             <div class="topbar-left">
 
-                <!-- Mobile menu -->
                 <button
                     class="menu-btn"
                     id="menuBtn"
@@ -202,7 +197,6 @@
                 </button>
 
 
-                <!-- Global Search -->
                 <form action="https://www.google.com/search"
                       method="GET"
                       target="_blank"
@@ -233,7 +227,6 @@
 
             <div class="topbar-actions">
 
-                <!-- Notifications -->
                 <button
                     type="button"
                     class="icon-btn notification-btn"
@@ -243,7 +236,6 @@
                 </button>
 
 
-                <!-- User -->
                 {% if user.is_authenticated %}
 
                     <a href="{% url 'profile' %}"
@@ -277,8 +269,6 @@
 
         </header>
 
-
-        <!-- ================= CONTENT ================= -->
 
         <main class="page-content">
 

@@ -19,24 +19,10 @@ def get_ai_response(conversation):
     for message in messages:
 
         if message.role == "user":
-            history.append(
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part(text=message.content)
-                    ]
-                )
-            )
+            history.append(types.Content(role="user",parts=[types.Part(text=message.content)]))
 
         elif message.role == "assistant":
-            history.append(
-                types.Content(
-                    role="model",
-                    parts=[
-                        types.Part(text=message.content)
-                    ]
-                )
-            )
+            history.append(types.Content(role="model",parts=[types.Part(text=message.content)]))
 
     for attempt in range(3):
 

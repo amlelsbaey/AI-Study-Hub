@@ -6,8 +6,6 @@
 {% block content %}
 
 <div class="ai-page">
-
-    <!-- Header -->
     <div class="ai-page-header">
 
         <div>
@@ -29,11 +27,8 @@
 
     </div>
 
-
-    <!-- Assistant -->
     <div class="ai-assistant-card">
 
-        <!-- Conversations Sidebar -->
         <aside class="ai-conversations">
 
             <div class="ai-conversations-header">
@@ -116,13 +111,10 @@
 
         </aside>
 
-
-        <!-- Chat Area -->
         <section class="ai-chat">
 
             {% if conversation %}
 
-                <!-- Chat Header -->
                 <div class="ai-chat-header">
 
                     <div class="ai-chat-title">
@@ -146,9 +138,6 @@
                     </div>
 
                 </div>
-
-
-                <!-- Messages -->
                 <div class="ai-messages" id="aiMessages">
 
                     {% for message in messages %}
@@ -233,8 +222,6 @@
 
                 </div>
 
-
-                <!-- Input -->
                 <div class="ai-input-area">
 
                     <form method="POST"
@@ -268,8 +255,7 @@
 
 
             {% else %}
-
-                <!-- No Conversation -->
+            
                 <div class="ai-welcome">
 
                     <div class="ai-welcome-icon">

@@ -2,75 +2,76 @@ const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const menuBtn = document.getElementById("menuBtn");
 const overlay = document.getElementById("sidebarOverlay");
-
-// Desktop collapse
-if (sidebarToggle) {
-    sidebarToggle.addEventListener("click", () => {
-        if (window.innerWidth > 900) {
-            document.body.classList.toggle("sidebar-collapsed");
-        } else {
-            sidebar.classList.remove("open");
-            overlay.classList.remove("active");
-        }
-    });
-}
-
-// Mobile open
-if (menuBtn) {
-    menuBtn.addEventListener("click", () => {
-        sidebar.classList.add("open");
-        overlay.classList.add("active");
-    });
-}
-
-// Close mobile sidebar
-if (overlay) {
-    overlay.addEventListener("click", () => {
-        sidebar.classList.remove("open");
-        overlay.classList.remove("active");
-    });
-};
-
-// =========================
-// DARK MODE
-// =========================
-
 const darkModeToggle = document.getElementById("darkModeToggle");
 
+function toggleMobileSidebar(open) {
+    if (!sidebar || !overlay) {
+        return;
+    }
+
+    sidebar.classList.toggle("open", open);
+    overlay.classList.toggle("active", open);
+}
+
 function applyTheme(theme) {
-    if (theme === "dark") {
-        document.body.classList.add("dark-mode");
+    const isDark = theme === "dark";
 
-        if (darkModeToggle) {
-            darkModeToggle.checked = true;
-        }
-    } else {
-        document.body.classList.remove("dark-mode");
+    document.body.classList.toggle("dark-mode", isDark);
 
-        if (darkModeToggle) {
-            darkModeToggle.checked = false;
-        }
+    if (darkModeToggle) {
+        darkModeToggle.checked = isDark;
     }
 }
 
+function setupSidebar() {
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", function () {
+            if (window.innerWidth > 900) {
+                document.body.classList.toggle(
+                    "sidebar-collapsed"
+                );
+            } else {
+                toggleMobileSidebar(false);
+            }
+        });
+    }
 
-// Apply saved theme immediately
-const savedTheme = localStorage.getItem("theme") || "light";
+    if (menuBtn) {
+        menuBtn.addEventListener("click", function () {
+            toggleMobileSidebar(true);
+        });
+    }
 
-applyTheme(savedTheme);
-
-
-// Toggle dark mode from Settings
-if (darkModeToggle) {
-
-    darkModeToggle.addEventListener("change", function () {
-
-        const newTheme = this.checked ? "dark" : "light";
-
-        localStorage.setItem("theme", newTheme);
-
-        applyTheme(newTheme);
-
-    });
-
+    if (overlay) {
+        overlay.addEventListener("click", function () {
+            toggleMobileSidebar(false);
+        });
+    }
 }
+
+function setupDarkMode() {
+    const savedTheme =
+        localStorage.getItem("theme") || "light";
+
+    applyTheme(savedTheme);
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener(
+            "change",
+            function () {
+                const newTheme =
+                    this.checked ? "dark" : "light";
+
+                localStorage.setItem(
+                    "theme",
+                    newTheme
+                );
+
+                applyTheme(newTheme);
+            }
+        );
+    }
+}
+
+setupSidebar();
+setupDarkMode();

@@ -1,175 +1,614 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Notes - AI Study Hub{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
-    <div>
-        <span style="color: #6366f1; font-weight: 700; font-size: 13px; text-transform: uppercase;">WORKSPACE</span>
-        <h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 5px 0;">Notes</h1>
-        <p style="color: #64748b; font-size: 15px; margin: 0;">Organize your study material and lectures notes.</p>
-    </div>
-   
-    <button onclick="document.getElementById('addNoteModal').style.display='flex'" style="padding: 10px 20px; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
-        + Create Note
-    </button>
-</div>
 
-<!-- Live Search & Category Filters -->
-<div style="margin-bottom: 20px;">
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <input type="text" id="liveSearchNotes" placeholder="Live search notes..." style="flex: 1; min-width: 150px; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;">
-       
-        <select id="categoryFilterNotes" style="padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
+<link rel="stylesheet" href="{% static 'css/notes.css' %}">
+
+<div class="notes-page">
+
+    <div class="notes-header">
+        <div>
+            <span class="notes-label">Workspace</span>
+            <h1 class="notes-title">Notes</h1>
+            <p class="notes-subtitle">
+                Organize your study material and lecture notes.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="btn-primary"
+            onclick="openModal('addNoteModal')"
+        >
+            + Create Note
+        </button>
+    </div>
+
+    <div class="notes-filters">
+        <input
+            type="text"
+            id="liveSearchNotes"
+            class="notes-search"
+            placeholder="Live search notes..."
+        >
+
+        <select
+            id="categoryFilterNotes"
+            class="notes-filter"
+        >
             <option value="">All Categories</option>
+
             {% for cat in categories %}
-                <option value="{{ cat.name|lower }}">{{ cat.name }}</option>
+                <option value="{{ cat.name|lower }}">
+                    {{ cat.name }}
+                </option>
             {% endfor %}
         </select>
     </div>
-</div>
 
-<!-- Notes Grid -->
-{% if notes %}
-    <div id="notesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;">
-        {% for note in notes %}
-        <div class="note-card" data-category="{{ note.category.name|lower }}" style="background: #ffffff; border-radius: 16px; padding: 20px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <span style="font-size: 11px; font-weight: 700; background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 6px;">{{ note.category.name }}</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <button onclick="document.getElementById('editNoteModal-{{ note.id }}').style.display='flex'" style="background: none; border: none; cursor: pointer; font-size: 14px;">✏️</button>
-                        <a href="{% url 'study:delete_note' note.id %}" style="color: #ef4444; text-decoration: none; font-size: 14px;" onclick="return confirm('Delete note?');">🗑</a>
+    {% if notes %}
+
+        <div
+            id="notesContainer"
+            class="notes-container"
+        >
+
+            {% for note in notes %}
+
+                <div
+                    class="note-card"
+                    data-category="{{ note.category.name|lower }}"
+                >
+
+                    <div>
+
+                        <div class="note-top">
+
+                            <span class="category-badge">
+                                {{ note.category.name }}
+                            </span>
+
+                            <div class="note-actions">
+
+                                <button
+                                    type="button"
+                                    class="note-edit"
+                                    onclick="openModal('editNoteModal-{{ note.id }}')"
+                                >
+                                    ✏️
+                                </button>
+
+                                <a
+                                    href="{% url 'study:delete_note' note.id %}"
+                                    class="note-delete"
+                                    onclick="return confirm('Delete note?');"
+                                >
+                                    🗑
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        <h3>{{ note.title }}</h3>
+
+                        <p class="note-content">
+                            {{ note.content }}
+                        </p>
+
                     </div>
+
+                    <div class="note-footer">
+
+                        {% if note.courses.all %}
+
+                            <div class="course-list">
+
+                                {% for course in note.courses.all %}
+
+                                    <span class="course-badge">
+                                        {{ course.name }}
+                                    </span>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                        <span class="note-date">
+                            Updated {{ note.updated_at|date:"M d, Y" }}
+                        </span>
+
+                    </div>
+
                 </div>
-                <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 8px 0;">{{ note.title }}</h3>
-                <p style="color: #475569; font-size: 14px; line-height: 1.5; margin: 0 0 15px 0;">{{ note.content }}</p>
-            </div>
-           
-            <div style="border-top: 1px solid #f1f5f9; padding-top: 10px;">
-                {% if note.courses.all %}
-                    <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 5px;">
-                        {% for course in note.courses.all %}
-                            <span style="font-size: 10px; background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px;">{{ course.name }}</span>
-                        {% endfor %}
+
+                <div
+                    id="editNoteModal-{{ note.id }}"
+                    class="modal-overlay"
+                    onclick="closeModalOutside(event, 'editNoteModal-{{ note.id }}')"
+                >
+
+                    <div
+                        class="modal-card"
+                        onclick="event.stopPropagation()"
+                    >
+
+                        <h3>Edit Note</h3>
+
+                        <form
+                            method="POST"
+                            action="{% url 'study:edit_note' note.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value="{{ note.title }}"
+                                    required
+                                    class="form-control"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <div class="form-label-row">
+
+                                    <label class="form-label">
+                                        Note Type
+                                    </label>
+
+                                    <button
+                                        type="button"
+                                        class="add-inline-btn"
+                                        onclick="toggleInline('editCategoryBox-{{ note.id }}')"
+                                    >
+                                        + New Type
+                                    </button>
+
+                                </div>
+
+                                <select
+                                    name="category"
+                                    id="editCategorySelect-{{ note.id }}"
+                                    required
+                                    class="form-control"
+                                >
+
+                                    {% for cat in categories %}
+
+                                        <option
+                                            value="{{ cat.id }}"
+                                            {% if note.category.id == cat.id %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ cat.name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <div
+                                    id="editCategoryBox-{{ note.id }}"
+                                    class="inline-create"
+                                >
+
+                                    <div class="inline-create-row">
+
+                                        <input
+                                            type="text"
+                                            id="editCategoryInput-{{ note.id }}"
+                                            placeholder="New type name"
+                                        >
+
+                                        <button
+                                            type="button"
+                                            class="inline-save"
+                                            onclick="createCategory(
+                                                'editCategoryInput-{{ note.id }}',
+                                                'editCategorySelect-{{ note.id }}',
+                                                'editCategoryBox-{{ note.id }}'
+                                            )"
+                                        >
+                                            Add
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="inline-cancel"
+                                            onclick="toggleInline('editCategoryBox-{{ note.id }}')"
+                                        >
+                                            ×
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <div class="form-label-row">
+
+                                    <label class="form-label">
+                                        Courses
+                                    </label>
+
+                                    <button
+                                        type="button"
+                                        class="add-inline-btn"
+                                        onclick="toggleInline('editCourseBox-{{ note.id }}')"
+                                    >
+                                        + New Course
+                                    </button>
+
+                                </div>
+
+                                <select
+                                    name="courses"
+                                    multiple
+                                    id="editCourseSelect-{{ note.id }}"
+                                    class="form-control"
+                                    style="height: 90px;"
+                                >
+
+                                    {% for course in courses %}
+
+                                        <option
+                                            value="{{ course.id }}"
+                                            {% if course in note.courses.all %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ course.name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <div
+                                    id="editCourseBox-{{ note.id }}"
+                                    class="inline-create"
+                                >
+
+                                    <div class="inline-create-row">
+
+                                        <input
+                                            type="text"
+                                            id="editCourseInput-{{ note.id }}"
+                                            placeholder="New course name"
+                                        >
+
+                                        <button
+                                            type="button"
+                                            class="inline-save"
+                                            onclick="createCourse(
+                                                'editCourseInput-{{ note.id }}',
+                                                'editCourseSelect-{{ note.id }}',
+                                                'editCourseBox-{{ note.id }}'
+                                            )"
+                                        >
+                                            Add
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="inline-cancel"
+                                            onclick="toggleInline('editCourseBox-{{ note.id }}')"
+                                        >
+                                            ×
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Content
+                                </label>
+
+                                <textarea
+                                    name="content"
+                                    rows="5"
+                                    required
+                                    class="form-control"
+                                >{{ note.content }}</textarea>
+
+                            </div>
+
+                            <div class="modal-actions">
+
+                                <button
+                                    type="button"
+                                    class="btn-cancel"
+                                    onclick="closeModal('editNoteModal-{{ note.id }}')"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="btn-save"
+                                >
+                                    Update Note
+                                </button>
+
+                            </div>
+
+                        </form>
+
                     </div>
-                {% endif %}
-                <span style="font-size: 11px; color: #94a3b8;">Updated {{ note.updated_at|date:"M d, Y" }}</span>
-            </div>
+
+                </div>
+
+            {% endfor %}
+
         </div>
 
-        <!-- Edit Note Modal -->
-        <div id="editNoteModal-{{ note.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 999;">
-            <div style="background: white; padding: 30px; border-radius: 16px; width: 450px; max-width: 90%;">
-                <h3 style="margin-top: 0;">Edit Note</h3>
-                <form method="POST" action="{% url 'study:edit_note' note.id %}">
-                    {% csrf_token %}
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 13px; margin-bottom: 5px;">Title</label>
-                        <input type="text" name="title" value="{{ note.title }}" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 13px; margin-bottom: 5px;">Category</label>
-                        <select name="category" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-                            {% for cat in categories %}
-                                <option value="{{ cat.id }}" {% if note.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 13px; margin-bottom: 5px;">Courses (Optional)</label>
-                        <select name="courses" multiple style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; height: 80px;">
-                            {% for course in courses %}
-                                <option value="{{ course.id }}" {% if course in note.courses.all %}selected{% endif %}>{{ course.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; font-size: 13px; margin-bottom: 5px;">Content</label>
-                        <textarea name="content" rows="4" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">{{ note.content }}</textarea>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                        <button type="button" onclick="document.getElementById('editNoteModal-{{ note.id }}').style.display='none'" style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ccc; background: white;">Cancel</button>
-                        <button type="submit" style="padding: 8px 15px; border-radius: 8px; border: none; background: #0f172a; color: white;">Update Note</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <div style="background: #ffffff; border-radius: 20px; padding: 30px; border: 1px solid #f1f5f9; text-align: center;">
-        <p style="color: #64748b; margin: 0;">No notes found.</p>
-    </div>
-{% endif %}
+    {% else %}
 
-<!-- Add Note Modal -->
-<div id="addNoteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 999;">
-    <div style="background: white; padding: 30px; border-radius: 16px; width: 450px; max-width: 90%;">
-        <h3 style="margin-top: 0;">Create New Note</h3>
-        <form method="POST" action="{% url 'study:add_note' %}">
-            {% csrf_token %}
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 13px; margin-bottom: 5px;">Title</label>
-                <input type="text" name="title" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-            </div>
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 13px; margin-bottom: 5px;">Category</label>
-                <select name="category" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 13px; margin-bottom: 5px;">Courses (Optional)</label>
-                <select name="courses" multiple style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc; height: 80px;">
-                    {% for course in courses %}
-                        <option value="{{ course.id }}">{{ course.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 13px; margin-bottom: 5px;">Content</label>
-                <textarea name="content" rows="4" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" onclick="document.getElementById('addNoteModal').style.display='none'" style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ccc; background: white;">Cancel</button>
-                <button type="submit" style="padding: 8px 15px; border-radius: 8px; border: none; background: #0f172a; color: white;">Save Note</button>
-            </div>
-        </form>
-    </div>
+        <div class="empty-notes">
+            No notes found.
+        </div>
+
+    {% endif %}
+
 </div>
+
+<div
+    id="addNoteModal"
+    class="modal-overlay"
+    onclick="closeModalOutside(event, 'addNoteModal')"
+>
+
+    <div
+        class="modal-card"
+        onclick="event.stopPropagation()"
+    >
+
+        <h3>Create New Note</h3>
+
+        <form
+            method="POST"
+            action="{% url 'study:add_note' %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Title
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    required
+                    class="form-control"
+                    placeholder="Enter note title"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <div class="form-label-row">
+
+                    <label class="form-label">
+                        Note Type
+                    </label>
+
+                    <button
+                        type="button"
+                        class="add-inline-btn"
+                        onclick="toggleInline('addCategoryBox')"
+                    >
+                        + New Type
+                    </button>
+
+                </div>
+
+                <select
+                    name="category"
+                    id="addCategorySelect"
+                    required
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select note type
+                    </option>
+
+                    {% for cat in categories %}
+
+                        <option value="{{ cat.id }}">
+                            {{ cat.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <div
+                    id="addCategoryBox"
+                    class="inline-create"
+                >
+
+                    <div class="inline-create-row">
+
+                        <input
+                            type="text"
+                            id="addCategoryInput"
+                            placeholder="Example: Lecture"
+                        >
+
+                        <button
+                            type="button"
+                            class="inline-save"
+                            onclick="createCategory(
+                                'addCategoryInput',
+                                'addCategorySelect',
+                                'addCategoryBox'
+                            )"
+                        >
+                            Add
+                        </button>
+
+                        <button
+                            type="button"
+                            class="inline-cancel"
+                            onclick="toggleInline('addCategoryBox')"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <div class="form-label-row">
+
+                    <label class="form-label">
+                        Courses
+                    </label>
+
+                    <button
+                        type="button"
+                        class="add-inline-btn"
+                        onclick="toggleInline('addCourseBox')"
+                    >
+                        + New Course
+                    </button>
+
+                </div>
+
+                <select
+                    name="courses"
+                    multiple
+                    id="addCourseSelect"
+                    class="form-control"
+                    style="height: 100px;"
+                >
+
+                    {% for course in courses %}
+
+                        <option value="{{ course.id }}">
+                            {{ course.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <div
+                    id="addCourseBox"
+                    class="inline-create"
+                >
+
+                    <div class="inline-create-row">
+
+                        <input
+                            type="text"
+                            id="addCourseInput"
+                            placeholder="Example: Mathematics"
+                        >
+
+                        <button
+                            type="button"
+                            class="inline-save"
+                            onclick="createCourse(
+                                'addCourseInput',
+                                'addCourseSelect',
+                                'addCourseBox'
+                            )"
+                        >
+                            Add
+                        </button>
+
+                        <button
+                            type="button"
+                            class="inline-cancel"
+                            onclick="toggleInline('addCourseBox')"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Content
+                </label>
+
+                <textarea
+                    name="content"
+                    rows="5"
+                    required
+                    class="form-control"
+                    placeholder="Write your note..."
+                ></textarea>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="closeModal('addNoteModal')"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-save"
+                >
+                    Save Note
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('liveSearchNotes');
-    const categoryFilter = document.getElementById('categoryFilterNotes');
-    const noteCards = document.querySelectorAll('.note-card');
 
-    function filterNotes() {
-        const query = searchInput.value.toLowerCase().trim();
-        const selectedCat = categoryFilter.value.toLowerCase().trim();
+<script src="{% static 'css/notes.js' %}"></script>
 
-        noteCards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            const cardCat = card.getAttribute('data-category');
-
-            const matchesSearch = text.includes(query);
-            const matchesCategory = !selectedCat || cardCat === selectedCat;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    if (searchInput) searchInput.addEventListener('keyup', filterNotes);
-    if (categoryFilter) categoryFilter.addEventListener('change', filterNotes);
-});
-</script>
 {% endblock %}

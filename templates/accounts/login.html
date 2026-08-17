@@ -9,7 +9,6 @@ Login | AI Study Hub
 
 <div class="auth-container">
 
-    <!-- Brand -->
     <div class="auth-brand">
         <a href="{% url 'home' %}">
 
@@ -26,7 +25,6 @@ Login | AI Study Hub
     </div>
 
 
-    <!-- Login Card -->
     <div class="auth-card">
 
         <div class="auth-header">
@@ -42,7 +40,6 @@ Login | AI Study Hub
         </div>
 
 
-        <!-- Google Login -->
         <a
             href="{% provider_login_url 'google' %}"
             class="google-btn"
@@ -59,7 +56,6 @@ Login | AI Study Hub
         </a>
 
 
-        <!-- Divider -->
         <div class="auth-divider">
 
             <span>OR</span>
@@ -67,7 +63,6 @@ Login | AI Study Hub
         </div>
 
 
-        <!-- Normal Login -->
         <form method="POST">
 
             {% csrf_token %}
@@ -124,7 +119,6 @@ Login | AI Study Hub
         </form>
 
 
-        <!-- Register -->
         <div class="auth-footer">
 
             <span>

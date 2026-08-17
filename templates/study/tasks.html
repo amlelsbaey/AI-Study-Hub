@@ -1,172 +1,593 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tasks - AI Study Hub{% endblock %}
+{% block title %}
+Tasks - AI Study Hub
+{% endblock %}
+
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/tasks.css' %}">
 {% endblock %}
 
+
 {% block content %}
+
 <div class="workspace-header">
+
     <div>
-        <span class="workspace-label">WORKSPACE</span>
-        <h1 class="page-title">Tasks</h1>
-        <p class="page-subtitle">Manage your assignments and study goals.</p>
+        <span class="workspace-label">
+            WORKSPACE
+        </span>
+
+        <h1 class="page-title">
+            Tasks
+        </h1>
+
+        <p class="page-subtitle">
+            Manage your assignments and study goals.
+        </p>
     </div>
-   
-    <button onclick="document.getElementById('addTaskModal').style.display='flex'" class="btn-add-task">
+
+
+    <button
+        type="button"
+        class="btn-add-task"
+        onclick="openModal('addTaskModal')"
+    >
         + Add New Task
     </button>
+
 </div>
 
-<!-- Live Search -->
-<div class="search-container" style="margin-bottom: 20px;">
-    <div class="search-form" style="display: flex; gap: 10px;">
-        <input type="text" id="liveSearchTasks" placeholder="Live search tasks..." class="search-input" style="flex: 1; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;">
-    </div>
+
+<!-- Search -->
+
+<div class="search-container">
+
+    <input
+        type="text"
+        id="liveSearchTasks"
+        class="search-input"
+        placeholder="Live search tasks..."
+        autocomplete="off"
+    >
+
 </div>
 
-<!-- Tasks List -->
+
+<!-- Tasks -->
+
 <div class="tasks-card">
+
     {% if tasks %}
-        <div class="tasks-list" id="tasksList">
+
+        <div
+            class="tasks-list"
+            id="tasksList"
+        >
+
             {% for task in tasks %}
-            <div class="task-item {% if task.status == 'completed' %}is-completed{% endif %}">
-                <div class="task-left">
-                    <a href="{% url 'study:toggle_task' task.id %}" class="task-checkbox {% if task.status == 'completed' %}is-completed{% endif %}">
-                        {% if task.status == 'completed' %}✓{% endif %}
-                    </a>
-                    <div>
-                        <div class="task-title-group">
-                            <h4 class="task-title {% if task.status == 'completed' %}is-completed{% endif %}">{{ task.title }}</h4>
-                            <span class="course-badge">{{ task.course.name }}</span>
+
+                <div
+                    class="task-item {% if task.status == 'completed' %}is-completed{% endif %}"
+                >
+
+                    <div class="task-left">
+
+                        <a
+                            href="{% url 'study:toggle_task' task.id %}"
+                            class="task-checkbox {% if task.status == 'completed' %}is-completed{% endif %}"
+                        >
+                            {% if task.status == 'completed' %}
+                                ✓
+                            {% endif %}
+                        </a>
+
+
+                        <div class="task-info">
+
+                            <div class="task-title-group">
+
+                                <h4
+                                    class="task-title {% if task.status == 'completed' %}is-completed{% endif %}"
+                                >
+                                    {{ task.title }}
+                                </h4>
+
+
+                                {% if task.course %}
+
+                                    <span class="course-badge">
+                                        {{ task.course.name }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <p class="task-due-date">
+                                Due:
+                                {{ task.due_date|date:"M d, Y - H:i" }}
+                            </p>
+
                         </div>
-                        <p class="task-due-date">Due: {{ task.due_date|date:"M d, Y - H:i" }}</p>
+
                     </div>
+
+
+                    <div class="task-right">
+
+                        <span class="priority-badge">
+                            {{ task.get_priority_display }}
+                        </span>
+
+
+                        <button
+                            type="button"
+                            class="btn-edit"
+                            onclick="openModal('editTaskModal-{{ task.id }}')"
+                            title="Edit task"
+                        >
+                            ✏️
+                        </button>
+
+
+                        <a
+                            href="{% url 'study:delete_task' task.id %}"
+                            class="btn-delete"
+                            onclick="return confirm('Delete task?');"
+                            title="Delete task"
+                        >
+                            🗑
+                        </a>
+
+                    </div>
+
                 </div>
 
-                <div class="task-right" style="display: flex; align-items: center; gap: 10px;">
-                    <span class="priority-badge">
-                        {{ task.get_priority_display }}
-                    </span>
-                    <button onclick="document.getElementById('editTaskModal-{{ task.id }}').style.display='flex'" style="background: none; border: none; cursor: pointer; font-size: 14px;">✏️</button>
-                    <a href="{% url 'study:delete_task' task.id %}" class="btn-delete" onclick="return confirm('Delete task?');">🗑</a>
-                </div>
-            </div>
 
-            <!-- Edit Task Modal -->
-            <div id="editTaskModal-{{ task.id }}" class="modal-overlay" style="display:none;">
-                <div class="modal-card">
-                    <h3 style="margin-top: 0;">Edit Task</h3>
-                    <form method="POST" action="{% url 'study:edit_task' task.id %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label class="form-label">Title</label>
-                            <input type="text" name="title" value="{{ task.title }}" required class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Course</label>
-                            <select name="course" required class="form-control">
-                                {% for course in courses %}
-                                    <option value="{{ course.id }}" {% if task.course.id == course.id %}selected{% endif %}>{{ course.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Due Date & Time</label>
-                            <input type="datetime-local" name="due_date" value="{{ task.due_date|date:'Y-m-d\TH:i' }}" required class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Priority</label>
-                            <select name="priority" class="form-control">
-                                <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option>
-                                <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Medium</option>
-                                <option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 15px;">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" rows="2" class="form-control">{{ task.description }}</textarea>
-                        </div>
-                        <div class="modal-actions">
-                            <button type="button" onclick="document.getElementById('editTaskModal-{{ task.id }}').style.display='none'" class="btn-cancel">Cancel</button>
-                            <button type="submit" class="btn-save">Update Task</button>
-                        </div>
-                    </form>
+                <!-- Edit Task Modal -->
+
+                <div
+                    id="editTaskModal-{{ task.id }}"
+                    class="modal-overlay"
+                    onclick="closeModalOutside(event, 'editTaskModal-{{ task.id }}')"
+                >
+
+                    <div
+                        class="modal-card"
+                        onclick="event.stopPropagation()"
+                    >
+
+                        <h3>
+                            Edit Task
+                        </h3>
+
+
+                        <form
+                            method="POST"
+                            action="{% url 'study:edit_task' task.id %}"
+                        >
+
+                            {% csrf_token %}
+
+
+                            <!-- Title -->
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value="{{ task.title }}"
+                                    required
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- Course -->
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Course
+                                </label>
+
+                                <select
+                                    name="course"
+                                    required
+                                    class="form-control"
+                                >
+
+                                    {% for course in courses %}
+
+                                        <option
+                                            value="{{ course.id }}"
+                                            {% if task.course.id == course.id %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ course.name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Due Date -->
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Due Date & Time
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="due_date"
+                                    value="{{ task.due_date|date:'Y-m-d\TH:i' }}"
+                                    required
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- Priority -->
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Priority
+                                </label>
+
+                                <select
+                                    name="priority"
+                                    class="form-control"
+                                >
+
+                                    <option
+                                        value="low"
+                                        {% if task.priority == 'low' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Low
+                                    </option>
+
+
+                                    <option
+                                        value="medium"
+                                        {% if task.priority == 'medium' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Medium
+                                    </option>
+
+
+                                    <option
+                                        value="high"
+                                        {% if task.priority == 'high' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        High
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    rows="3"
+                                    class="form-control"
+                                >{{ task.description }}</textarea>
+
+                            </div>
+
+
+                            <div class="modal-actions">
+
+                                <button
+                                    type="button"
+                                    class="btn-cancel"
+                                    onclick="closeModal('editTaskModal-{{ task.id }}')"
+                                >
+                                    Cancel
+                                </button>
+
+
+                                <button
+                                    type="submit"
+                                    class="btn-save"
+                                >
+                                    Update Task
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
                 </div>
-            </div>
+
             {% endfor %}
+
         </div>
+
+
     {% else %}
+
         <div class="empty-state">
-            <p>No tasks found.</p>
+
+            <p>
+                No tasks found.
+            </p>
+
         </div>
+
     {% endif %}
+
 </div>
 
-<!-- Add Task Modal -->
-<div id="addTaskModal" class="modal-overlay">
-    <div class="modal-card">
-        <h3 style="margin-top: 0;">Add New Task</h3>
-        <form method="POST" action="{% url 'study:add_task' %}">
+
+<!-- =====================================================
+     ADD TASK MODAL
+===================================================== -->
+
+<div
+    id="addTaskModal"
+    class="modal-overlay"
+    onclick="closeModalOutside(event, 'addTaskModal')"
+>
+
+    <div
+        class="modal-card"
+        onclick="event.stopPropagation()"
+    >
+
+        <h3>
+            Add New Task
+        </h3>
+
+
+        <form
+            method="POST"
+            action="{% url 'study:add_task' %}"
+        >
+
             {% csrf_token %}
+
+
+            <!-- Title -->
+
             <div class="form-group">
-                <label class="form-label">Title</label>
-                <input type="text" name="title" required class="form-control">
+
+                <label class="form-label">
+                    Title
+                </label>
+
+                <input
+                    type="text"
+                    name="title"
+                    required
+                    class="form-control"
+                    placeholder="Enter task title"
+                >
+
             </div>
+
+
+            <!-- Course -->
+
             <div class="form-group">
-                <label class="form-label">Course</label>
-                <select name="course" required class="form-control">
+
+                <div class="form-label-row">
+
+                    <label class="form-label">
+                        Course
+                    </label>
+
+
+                    <button
+                        type="button"
+                        class="add-inline-btn"
+                        onclick="toggleInline('addCourseBox')"
+                    >
+                        + New Course
+                    </button>
+
+                </div>
+
+
+                <select
+                    name="course"
+                    id="taskCourseSelect"
+                    required
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Select Course
+                    </option>
+
+
                     {% for course in courses %}
-                        <option value="{{ course.id }}">{{ course.name }}</option>
+
+                        <option value="{{ course.id }}">
+                            {{ course.name }}
+                        </option>
+
                     {% endfor %}
+
                 </select>
+
+
+                <!-- Inline Add Course -->
+
+                <div
+                    id="addCourseBox"
+                    class="inline-create"
+                >
+
+                    <div class="inline-create-row">
+
+                        <input
+                            type="text"
+                            id="courseNameInput"
+                            placeholder="Enter course name"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="inline-save"
+                            onclick="createCourse()"
+                        >
+                            Add
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="inline-cancel"
+                            onclick="toggleInline('addCourseBox')"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
+
+
+            <!-- Due Date -->
+
             <div class="form-group">
-                <label class="form-label">Due Date & Time</label>
-                <input type="datetime-local" name="due_date" required class="form-control">
+
+                <label class="form-label">
+                    Due Date & Time
+                </label>
+
+                <input
+                    type="datetime-local"
+                    name="due_date"
+                    required
+                    class="form-control"
+                >
+
             </div>
+
+
+            <!-- Priority -->
+
             <div class="form-group">
-                <label class="form-label">Priority</label>
-                <select name="priority" class="form-control">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
+
+                <label class="form-label">
+                    Priority
+                </label>
+
+                <select
+                    name="priority"
+                    class="form-control"
+                >
+
+                    <option value="low">
+                        Low
+                    </option>
+
+                    <option
+                        value="medium"
+                        selected
+                    >
+                        Medium
+                    </option>
+
+                    <option value="high">
+                        High
+                    </option>
+
                 </select>
+
             </div>
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label">Description</label>
-                <textarea name="description" rows="2" class="form-control"></textarea>
+
+
+            <!-- Description -->
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Description
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="3"
+                    class="form-control"
+                    placeholder="Optional description..."
+                ></textarea>
+
             </div>
+
+
+            <!-- Actions -->
+
             <div class="modal-actions">
-                <button type="button" onclick="document.getElementById('addTaskModal').style.display='none'" class="btn-cancel">Cancel</button>
-                <button type="submit" class="btn-save">Save Task</button>
+
+                <button
+                    type="button"
+                    class="btn-cancel"
+                    onclick="closeModal('addTaskModal')"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-save"
+                >
+                    Save Task
+                </button>
+
             </div>
+
         </form>
+
     </div>
+
 </div>
+
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('liveSearchTasks');
-    const taskItems = document.querySelectorAll('#tasksList .task-item');
 
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function(e) {
-            const query = e.target.value.toLowerCase().trim();
-            taskItems.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(query)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    }
-});
-</script>
+{% block extra_js %}
+
+<script src="{% static 'js/tasks.js' %}"></script>
+
 {% endblock %}
