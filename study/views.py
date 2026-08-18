@@ -2,6 +2,7 @@ from itertools import chain
 from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,10 +21,15 @@ from resources.models import Resource
 
 @login_required
 def dashboard_view(request):
-
+   
     tasks_count = Task.objects.filter(
         user=request.user,
         status='pending'
+    ).count()
+
+    completed_tasks_count = Task.objects.filter(
+        user=request.user,
+        status='completed'
     ).count()
 
     notes_count = Note.objects.filter(
@@ -34,6 +40,58 @@ def dashboard_view(request):
         user=request.user
     ).count()
 
+    
+    task_stats = {
+        'pending': tasks_count,
+        'completed': completed_tasks_count,
+    }
+
+   
+    upcoming_tasks = Task.objects.filter(
+        user=request.user,
+        status='pending',
+        due_date__isnull=False
+    ).order_by('due_date')
+
+   
+    upcoming_sessions = StudySession.objects.filter(
+        user=request.user,
+        start_time__isnull=False
+    ).order_by('start_time')
+
+    deadlines_list = []
+
+    for task in upcoming_tasks:
+        deadlines_list.append({
+            'title': f"[Task] {task.title}",
+            'date_str': task.due_date.strftime('%Y-%m-%d %H:%M'),
+            'timestamp': task.due_date.timestamp(),
+        })
+
+    for session in upcoming_sessions:
+        deadlines_list.append({
+            'title': f"[Session] {session.title}",
+            'date_str': session.start_time.strftime('%Y-%m-%d %H:%M'),
+            'timestamp': session.start_time.timestamp(),
+        })
+
+
+    deadlines_list = sorted(
+        deadlines_list,
+        key=lambda x: x['timestamp']
+    )[:7]
+
+    deadline_labels = [
+        item['title']
+        for item in deadlines_list
+    ]
+
+    deadline_dates = [
+        item['date_str']
+        for item in deadlines_list
+    ]
+
+   
     tasks = Task.objects.filter(
         user=request.user
     )
@@ -79,9 +137,13 @@ def dashboard_view(request):
 
     context = {
         'tasks_count': tasks_count,
+        'completed_tasks_count': completed_tasks_count,
         'notes_count': notes_count,
         'resources_count': resources_count,
         'recent_activities': recent_activities,
+        'task_stats': task_stats,
+        'deadline_labels': deadline_labels,
+        'deadline_dates': deadline_dates,
     }
 
     return render(
@@ -93,8 +155,10 @@ def dashboard_view(request):
 
 @login_required
 def tasks_view(request):
-
-    search_query = request.GET.get('q', '').strip()
+    search_query = request.GET.get(
+        'q',
+        ''
+    ).strip()
 
     tasks = Task.objects.filter(
         user=request.user
@@ -113,12 +177,18 @@ def tasks_view(request):
         'due_date'
     )
 
+    
+    paginator = Paginator(tasks, 8)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     courses = Course.objects.filter(
         user=request.user
     ).order_by('name')
 
     context = {
-        'tasks': tasks,
+        'tasks': page_obj,
+        'page_obj': page_obj,
         'courses': courses,
         'search_query': search_query,
     }
@@ -132,9 +202,7 @@ def tasks_view(request):
 
 @login_required
 def add_task(request):
-
     if request.method == 'POST':
-
         title = request.POST.get(
             'title',
             ''
@@ -159,11 +227,8 @@ def add_task(request):
         )
 
         if not title or not due_date or not course_id:
-            return redirect(
-                'study:tasks'
-            )
+            return redirect('study:tasks')
 
-    
         course = get_object_or_404(
             Course,
             id=course_id,
@@ -179,14 +244,11 @@ def add_task(request):
             priority=priority
         )
 
-    return redirect(
-        'study:tasks'
-    )
+    return redirect('study:tasks')
 
 
 @login_required
 def edit_task(request, task_id):
-
     task = get_object_or_404(
         Task,
         id=task_id,
@@ -194,7 +256,6 @@ def edit_task(request, task_id):
     )
 
     if request.method == 'POST':
-
         title = request.POST.get(
             'title',
             ''
@@ -226,7 +287,6 @@ def edit_task(request, task_id):
         task.priority = priority
 
         if course_id:
-
             task.course = get_object_or_404(
                 Course,
                 id=course_id,
@@ -235,14 +295,11 @@ def edit_task(request, task_id):
 
         task.save()
 
-    return redirect(
-        'study:tasks'
-    )
+    return redirect('study:tasks')
 
 
 @login_required
 def toggle_task(request, task_id):
-
     task = get_object_or_404(
         Task,
         id=task_id,
@@ -250,25 +307,19 @@ def toggle_task(request, task_id):
     )
 
     if task.status == 'pending':
-
         task.status = 'completed'
         task.completed_at = timezone.now()
-
     else:
-
         task.status = 'pending'
         task.completed_at = None
 
     task.save()
 
-    return redirect(
-        'study:tasks'
-    )
+    return redirect('study:tasks')
 
 
 @login_required
 def delete_task(request, task_id):
-
     task = get_object_or_404(
         Task,
         id=task_id,
@@ -277,14 +328,11 @@ def delete_task(request, task_id):
 
     task.delete()
 
-    return redirect(
-        'study:tasks'
-    )
+    return redirect('study:tasks')
 
 
 @login_required
 def notes_view(request):
-
     search_query = request.GET.get(
         'q',
         ''
@@ -304,14 +352,12 @@ def notes_view(request):
     )
 
     if search_query:
-
         notes = notes.filter(
             Q(title__icontains=search_query) |
             Q(content__icontains=search_query)
         )
 
     if category_id:
-
         notes = notes.filter(
             category_id=category_id
         )
@@ -320,6 +366,11 @@ def notes_view(request):
         '-updated_at'
     )
 
+   
+    paginator = Paginator(notes, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     categories = NoteCategory.objects.all()
 
     courses = Course.objects.filter(
@@ -327,7 +378,8 @@ def notes_view(request):
     ).order_by('name')
 
     context = {
-        'notes': notes,
+        'notes': page_obj,
+        'page_obj': page_obj,
         'categories': categories,
         'courses': courses,
         'search_query': search_query,
@@ -343,9 +395,7 @@ def notes_view(request):
 
 @login_required
 def add_note(request):
-
     if request.method == 'POST':
-
         title = request.POST.get(
             'title',
             ''
@@ -365,9 +415,7 @@ def add_note(request):
         )
 
         if not title or not content or not category_id:
-            return redirect(
-                'study:notes'
-            )
+            return redirect('study:notes')
 
         category = get_object_or_404(
             NoteCategory,
@@ -390,14 +438,11 @@ def add_note(request):
             valid_courses
         )
 
-    return redirect(
-        'study:notes'
-    )
+    return redirect('study:notes')
 
 
 @login_required
 def edit_note(request, note_id):
-
     note = get_object_or_404(
         Note,
         id=note_id,
@@ -405,7 +450,6 @@ def edit_note(request, note_id):
     )
 
     if request.method == 'POST':
-
         title = request.POST.get(
             'title',
             ''
@@ -444,14 +488,11 @@ def edit_note(request, note_id):
             valid_courses
         )
 
-    return redirect(
-        'study:notes'
-    )
+    return redirect('study:notes')
 
 
 @login_required
 def delete_note(request, note_id):
-
     note = get_object_or_404(
         Note,
         id=note_id,
@@ -460,17 +501,12 @@ def delete_note(request, note_id):
 
     note.delete()
 
-    return redirect(
-        'study:notes'
-    )
-
+    return redirect('study:notes')
 
 
 @login_required
 def add_category(request):
-
     if request.method != 'POST':
-
         return JsonResponse(
             {
                 'success': False,
@@ -485,7 +521,6 @@ def add_category(request):
     ).strip()
 
     if not name:
-
         return JsonResponse(
             {
                 'success': False,
@@ -499,7 +534,6 @@ def add_category(request):
     ).first()
 
     if category:
-
         return JsonResponse({
             'success': True,
             'id': category.id,
@@ -517,12 +551,9 @@ def add_category(request):
     })
 
 
-
 @login_required
 def add_course(request):
-
     if request.method != 'POST':
-
         return JsonResponse(
             {
                 'success': False,
@@ -537,7 +568,6 @@ def add_course(request):
     ).strip()
 
     if not name:
-
         return JsonResponse(
             {
                 'success': False,
@@ -552,7 +582,6 @@ def add_course(request):
     ).first()
 
     if course:
-
         return JsonResponse({
             'success': True,
             'id': course.id,
@@ -575,7 +604,6 @@ def add_course(request):
 
 @login_required
 def study_sessions_view(request):
-
     sessions = StudySession.objects.filter(
         user=request.user
     ).order_by(
@@ -593,9 +621,7 @@ def study_sessions_view(request):
 
 @login_required
 def add_study_session(request):
-
     if request.method == 'POST':
-
         title = request.POST.get(
             'title',
             ''
@@ -624,7 +650,6 @@ def add_study_session(request):
             and end_time
             and duration
         ):
-
             StudySession.objects.create(
                 user=request.user,
                 title=title,

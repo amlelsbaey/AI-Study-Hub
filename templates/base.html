@@ -12,6 +12,51 @@
     <link rel="stylesheet" href="{% static 'css/account.css' %}">
     <link rel="stylesheet" href="{% static 'css/ai_assistant.css' %}">
 
+    <!-- Chart.js & html2pdf.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* Dark Mode Theme Overrides */
+        body.dark-theme {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-theme .sidebar,
+        body.dark-theme .topbar,
+        body.dark-theme .stat-card,
+        body.dark-theme .recent-tasks-card {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        body.dark-theme .task-title-text,
+        body.dark-theme .nav-text,
+        body.dark-theme .page-title {
+            color: #f1f5f9 !important;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.dark-theme .theme-toggle-btn {
+            border-color: #475569;
+            color: #f8fafc;
+        }
+    </style>
+
     {% block extra_css %}
     {% endblock %}
 </head>
@@ -22,13 +67,15 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-   
     <aside class="sidebar" id="sidebar">
 
         <div class="brand">
 
             <div class="brand-icon">
-                <img src="{% static '/images/logos.png' %}" alt="logo" width="70" height="70">
+                <img src="{% static 'images/logos.png' %}"
+                     alt="logo"
+                     width="70"
+                     height="70">
             </div>
 
             <div class="brand-text">
@@ -44,18 +91,13 @@
             >
                 ‹
             </button>
-
         </div>
 
-
-        
+        <!-- Navigation -->
         <nav class="sidebar-nav">
 
             <div class="nav-section">
-
-                <span class="nav-title">
-                    WORKSPACE
-                </span>
+                <span class="nav-title">WORKSPACE</span>
 
                 <a href="{% url 'study:dashboard' %}"
                    class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
@@ -86,103 +128,55 @@
                     <span class="nav-icon">◷</span>
                     <span class="nav-text">Study Sessions</span>
                 </a>
-
             </div>
 
-
             <div class="nav-section">
-
-                <span class="nav-title">
-                    AI TOOLS
-                </span>
+                <span class="nav-title">AI TOOLS</span>
 
                 <a href="{% url 'ai_assistant:assistant' %}"
                    class="nav-item ai-nav {% if request.resolver_match.url_name == 'assistant' %}active{% endif %}">
                     <span class="nav-icon">✦</span>
                     <span class="nav-text">AI Assistant</span>
                 </a>
-
-                <a href="#"
-                   class="nav-item">
-                    <span class="nav-icon">✎</span>
-                    <span class="nav-text">AI Summarizer</span>
-                </a>
-
-                <a href="#"
-                   class="nav-item">
-                    <span class="nav-icon">?</span>
-                    <span class="nav-text">Quiz Generator</span>
-                </a>
-
             </div>
 
-
             <div class="nav-section">
-
-                <span class="nav-title">
-                    ACCOUNT
-                </span>
+                <span class="nav-title">ACCOUNT</span>
 
                 {% if user.is_authenticated %}
 
                     <a href="{% url 'profile' %}"
                        class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-
-                        <span class="nav-icon">
-                            ◎
-                        </span>
-
-                        <span class="nav-text">
-                            Profile
-                        </span>
-
+                        <span class="nav-icon">◎</span>
+                        <span class="nav-text">Profile</span>
                     </a>
-
 
                     <a href="{% url 'settings' %}"
                        class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
-
-                        <span class="nav-icon">
-                            ⚙
-                        </span>
-
-                        <span class="nav-text">
-                            Settings
-                        </span>
-
+                        <span class="nav-icon">⚙</span>
+                        <span class="nav-text">Settings</span>
                     </a>
 
-
                     <form action="{% url 'logout' %}" method="post">
-
                         {% csrf_token %}
 
                         <button type="submit" class="nav-item logout-btn">
-
-                            <span class="nav-icon">
-                                ↪
-                            </span>
-
-                            <span class="nav-text">
-                                Logout
-                            </span>
-
+                            <span class="nav-icon">↪</span>
+                            <span class="nav-text">Logout</span>
                         </button>
-
                     </form>
 
                 {% endif %}
-
             </div>
 
         </nav>
-
     </aside>
 
-
+    <!-- ================= MAIN ================= -->
 
     <div class="main-wrapper">
 
+        <!-- Topbar -->
 
         <header class="topbar">
 
@@ -196,16 +190,17 @@
                     ☰
                 </button>
 
+                <!-- Global Search -->
 
-                <form action="https://www.google.com/search"
-                      method="GET"
-                      target="_blank"
-                      class="search-box"
-                      style="display: flex; align-items: center; background: #f1f5f9; border-radius: 10px; padding: 2px 8px;">
+                <form
+                    action="https://www.google.com/search"
+                    method="GET"
+                    target="_blank"
+                    class="search-box"
+                    style="display: flex; align-items: center; background: #f1f5f9; border-radius: 10px; padding: 2px 8px;"
+                >
 
-                    <span class="search-icon">
-                        ⌕
-                    </span>
+                    <span class="search-icon">⌕</span>
 
                     <input
                         type="text"
@@ -215,8 +210,10 @@
                         style="border: none; background: transparent; outline: none; padding: 8px; width: 100%; font-size: 14px;"
                     >
 
-                    <button type="submit"
-                            style="background: #6366f1; color: white; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: 600;">
+                    <button
+                        type="submit"
+                        style="background: #6366f1; color: white; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: 600;"
+                    >
                         Search
                     </button>
 
@@ -224,8 +221,20 @@
 
             </div>
 
-
             <div class="topbar-actions">
+
+                <!-- Dark Mode Toggle Button -->
+
+                <button
+                    id="themeToggle"
+                    class="theme-toggle-btn"
+                    type="button"
+                >
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">Dark</span>
+                </button>
+
+                <!-- Notifications -->
 
                 <button
                     type="button"
@@ -235,31 +244,24 @@
                     <span class="notification-dot"></span>
                 </button>
 
+                <!-- User Profile -->
 
                 {% if user.is_authenticated %}
 
-                    <a href="{% url 'profile' %}"
-                       class="user-menu">
+                    <a href="{% url 'profile' %}" class="user-menu">
 
                         <div class="avatar">
                             {{ user.first_name|first|default:user.username|first|upper }}
                         </div>
 
                         <div class="user-info">
-
                             <strong>
                                 {{ user.first_name|default:user.username }}
                             </strong>
-
-                            <small>
-                                Student
-                            </small>
-
+                            <small>Student</small>
                         </div>
 
-                        <span class="user-arrow">
-                            ˅
-                        </span>
+                        <span class="user-arrow">˅</span>
 
                     </a>
 
@@ -269,6 +271,7 @@
 
         </header>
 
+        <!-- ================= CONTENT ================= -->
 
         <main class="page-content">
 
@@ -277,13 +280,49 @@
 
         </main>
 
-
     </div>
 
 </div>
 
-
 <script src="{% static 'js/main.js' %}"></script>
+
+<script>
+
+    // Dark Mode Toggle Logic with LocalStorage Persist
+
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    if (localStorage.getItem('theme') === 'dark') {
+
+        document.body.classList.add('dark-theme');
+
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'Light';
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+
+        document.body.classList.toggle('dark-theme');
+
+        if (document.body.classList.contains('dark-theme')) {
+
+            localStorage.setItem('theme', 'dark');
+
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light';
+
+        } else {
+
+            localStorage.setItem('theme', 'light');
+
+            themeIcon.textContent = '🌙';
+            themeText.textContent = 'Dark';
+        }
+    });
+
+</script>
 
 {% block extra_js %}
 {% endblock %}
