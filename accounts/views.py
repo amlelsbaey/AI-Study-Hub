@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from allauth.account.models import EmailAddress
 from .forms import (
     RegisterForm,
     UserUpdateForm,
     ProfileUpdateForm
 )
+
 
 def register(request):
     if request.method == 'POST':
@@ -13,7 +15,17 @@ def register(request):
 
         if form.is_valid():
             user = form.save()
-            # التعديل هنا: أضفنا الـ backend لمنع التضارب مع allauth
+
+            # 1. إنشاء سجل البريد وإرسال رابط التفعيل في الـ Terminal
+            email_address = EmailAddress.objects.create(
+                user=user,
+                email=user.email,
+                primary=True,
+                verified=False
+            )
+            email_address.send_confirmation(request)
+
+            # 2. تسجيل دخول المستخدم وتوجيهه لصفحة الـ Profile
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('profile')
 
@@ -38,7 +50,6 @@ def profile(request):
 
 @login_required
 def edit_profile(request):
-
     if request.method == 'POST':
         user_form = UserUpdateForm(
             request.POST,
@@ -76,6 +87,7 @@ def edit_profile(request):
         'accounts/edit_profile.html',
         context
     )
+
 
 @login_required
 def settings_view(request):

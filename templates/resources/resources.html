@@ -9,25 +9,26 @@
         <h1 style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 5px 0;">Resources</h1>
         <p style="color: #64748b; font-size: 15px; margin: 0;">Access your saved study links and documents.</p>
     </div>
-   
+    
     <button onclick="document.getElementById('addResourceModal').style.display='flex'" style="padding: 10px 20px; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">
         + Add Resource
     </button>
 </div>
 
-<!-- Live Search & Type Filters -->
-<div style="margin-bottom: 20px;">
+<!-- Search & Type Filters (Server-side & Live JavaScript) -->
+<form method="GET" style="margin-bottom: 20px;">
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <input type="text" id="liveSearchResources" placeholder="Live search resources..." style="flex: 1; min-width: 150px; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;">
-       
-        <select id="typeFilterResources" style="padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
+        <input type="text" name="q" id="liveSearchResources" value="{{ search_query }}" placeholder="Search resources..." style="flex: 1; min-width: 150px; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none;">
+        
+        <select name="type" id="typeFilterResources" onchange="this.form.submit()" style="padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0; background: white;">
             <option value="">All Types</option>
             {% for r_type in resource_types %}
-                <option value="{{ r_type.name|lower }}">{{ r_type.name }}</option>
+                <option value="{{ r_type.id }}" {% if selected_type == r_type.id|stringformat:"s" %}selected{% endif %}>{{ r_type.name }}</option>
             {% endfor %}
         </select>
+        <button type="submit" style="padding: 10px 20px; background: #6366f1; color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;">Filter</button>
     </div>
-</div>
+</form>
 
 <!-- Resource Cards -->
 <div style="background: #ffffff; border-radius: 20px; padding: 25px; border: 1px solid #f1f5f9;">
@@ -53,6 +54,26 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- Pagination Controls -->
+        {% if resources.has_other_pages %}
+        <div style="margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+            {% if resources.has_previous %}
+                <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #0f172a;">&laquo; First</a>
+                <a href="?page={{ resources.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #0f172a;">Previous</a>
+            {% endif %}
+
+            <span style="padding: 8px 12px; color: #64748b; font-size: 14px;">
+                Page {{ resources.number }} of {{ resources.paginator.num_pages }}
+            </span>
+
+            {% if resources.has_next %}
+                <a href="?page={{ resources.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #0f172a;">Next</a>
+                <a href="?page={{ resources.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}" style="padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #0f172a;">Last &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
     {% else %}
         <div style="text-align: center; padding: 30px 0;">
             <p style="color: #64748b; margin: 0;">No resources found.</p>
@@ -99,30 +120,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('liveSearchResources');
-    const typeFilter = document.getElementById('typeFilterResources');
     const resourceItems = document.querySelectorAll('.resource-item');
 
-    function filterResources() {
-        const query = searchInput.value.toLowerCase().trim();
-        const selectedType = typeFilter.value.toLowerCase().trim();
-
-        resourceItems.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            const itemType = item.getAttribute('data-type');
-
-            const matchesSearch = text.includes(query);
-            const matchesType = !selectedType || itemType === selectedType;
-
-            if (matchesSearch && matchesType) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const query = searchInput.value.toLowerCase().trim();
+            resourceItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'flex' : 'none';
+            });
         });
     }
-
-    if (searchInput) searchInput.addEventListener('keyup', filterResources);
-    if (typeFilter) typeFilter.addEventListener('change', filterResources);
 });
 </script>
 {% endblock %}
